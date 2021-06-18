@@ -1,7 +1,7 @@
 import datetime
 import time
 from flask import abort, jsonify, render_template
-from flask_bootstrap5 import Bootstrap
+
 
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
@@ -11,16 +11,6 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bot.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
-
-def create_app():
-  app = Flask(__name__)
-  Bootstrap(app)
-
-  return app
-
-
-
 
 
 class Message(db.Model):
@@ -34,11 +24,15 @@ class Message(db.Model):
 
 @app.route("/")
 def hello():
-    mess_db=Message.query.all()
-    for mes in mess_db:
-        print(mes)
-#    return str(mess_db)  #TODO ВЫДАТЬ обекты из ДБ
-    return render_template('index.html')
+    mess_db = Message.query.all()
+    messages_index = []
+    for mess in mess_db:
+        messages_index.append({
+            'name': mess.name,
+            'text': mess.text,
+            'time': datetime.datetime.fromtimestamp(mess.time).strftime("%H:%M:%S")
+        })
+    return render_template('index.html', messages_index = messages_index)
 
 
 @app.route("/status")
